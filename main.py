@@ -1,5 +1,13 @@
 import pygame
+import random
 from menubutton import MenuButton
+from dice import Dice
+
+
+def screen_blit_die(die_list):
+    for dice in die_list:
+        screen.blit(dice.image, dice.rect)
+
 
 pygame.init()
 pygame.font.init()
@@ -26,6 +34,10 @@ frame = 0
 
 # initializing menu buttons
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
+roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
+
+# dice game variables
+all_dice = []
 
 while run:
     # --- Main event loop
@@ -40,14 +52,25 @@ while run:
                 print("space")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if dice_option.rect.collidepoint(event.pos):
-                print("DICE")
+            if dice_option.rect.collidepoint(event.pos) and not dice_option.clicked:    # checks for a click on the dice gamemode option
+                dice_option.clicked = True
+                all_dice = [Dice(6)]    # starts game off with one D6
+                # initializes button to roll dice
+            if roll_button.rect.collidepoint(event.pos) and dice_option.clicked:
+                for dice in all_dice:
+                    dice.roll_dice()
             # elif slot_option.rect.collidepoint(event.pos):
             #     print("SLOTS")
+
     # do not blit above #
     screen.fill((0, 0, 0))
     # screen.blit(bg, (bg_x, 0))
-    screen.blit(dice_option.image, dice_option.rect)
+    if dice_option.clicked:
+        screen_blit_die(all_dice)
+        screen.blit(roll_button.image, roll_button.rect)
+    else:
+        screen.blit(dice_option.image, dice_option.rect)
+
 
     pygame.display.update()
     frame += 1
