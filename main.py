@@ -9,6 +9,14 @@ def screen_blit_die(die_list):
         screen.blit(dice.image, dice.rect)
 
 
+def die_position_correct(die_list, screen_size):
+    for i in range(len(die_list)):
+        if i == 0:
+            die_list[0].rect_center = (100, 100)
+        else:
+            die_list[i].position_correct(die_list[i - 1].rect.center[0], die_list[i - 1].rect.center[1], (100, 100), screen_size)
+
+
 pygame.init()
 pygame.font.init()
 
@@ -31,10 +39,12 @@ screen = pygame.display.set_mode(size)
 run = True
 clock = pygame.time.Clock()
 frame = 0
+new_die_added = False
 
 # initializing menu buttons
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
 roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
+add_dice_button = MenuButton("AddDice", (screen_center[0], screen_center[1] + (screen_center[1] / 2) + 100))
 
 # dice game variables
 all_dice = []
@@ -59,15 +69,22 @@ while run:
             if roll_button.rect.collidepoint(event.pos) and dice_option.clicked:
                 for dice in all_dice:
                     dice.roll_dice()
+            if add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked:
+                all_dice.append(Dice(6))
+                new_die_added = True
             # elif slot_option.rect.collidepoint(event.pos):
             #     print("SLOTS")
 
+    if new_die_added:
+        die_position_correct(all_dice, size)
+        new_die_added = False
     # do not blit above #
     screen.fill((0, 0, 0))
     # screen.blit(bg, (bg_x, 0))
     if dice_option.clicked:
         screen_blit_die(all_dice)
         screen.blit(roll_button.image, roll_button.rect)
+        screen.blit(add_dice_button.image, add_dice_button.rect)
     else:
         screen.blit(dice_option.image, dice_option.rect)
 

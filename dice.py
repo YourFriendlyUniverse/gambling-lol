@@ -20,3 +20,11 @@ class Dice:
         self.face_up_number = self.faces[self.side_up - 1]
         self.image = pygame.image.load(f"{self.face_up_number}Dice.png")
         # updates image and rolls dice
+
+    def position_correct(self, previous_x, previous_y, start, limit):
+        # previous_x and previous_y are the x and y positions of the center of the previous dice
+        if not previous_x >= limit[0] - 100:
+            self.rect.center = (previous_x + self.image_size[0], previous_y)
+        elif previous_y <= limit[1]:
+            # loops back around to beginning but one row down
+            self.rect.center = (start[0], previous_y + self.image_size[1])
