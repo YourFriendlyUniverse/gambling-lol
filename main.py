@@ -31,9 +31,10 @@ pygame.font.init()
 
 
 settings = {
-    "screen_size": (800, 600),
+    "screen_size": (1600, 1000),
     "frames_per_second": 60,
     "font": "Comic Sans",
+    "testing": True,
 }
 
 # initializing variables
@@ -53,13 +54,17 @@ new_die_added = False
 # initializing menu buttons
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
 roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
-add_dice_button = MenuButton("AddDice", (screen_center[0], screen_center[1] + (screen_center[1] / 2) + 100))
+if settings["testing"]:
+    test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
+    add_dice_button = MenuButton("AddDice", (screen_center[0], screen_center[1] + (screen_center[1] / 2) + 100))
+    add_dice_button.scale_down(1.5)
 
 # dice game variables
 all_dice = []
 dice_total = 0
 display_dice_total = display_font.render(f"{dice_total}", True, (255, 255, 255))
 times_scaled = 0
+displaying_testing_menu = False
 
 while run:
     # --- Main event loop
@@ -83,7 +88,7 @@ while run:
                     dice.roll_dice()
                 dice_total = add_dice_total(all_dice)
                 display_dice_total = display_font.render(f"{dice_total}", True, (255, 255, 255))
-            if add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked:
+            if add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked and displaying_testing_menu:
                 all_dice.append(Dice(6, times_scaled))
                 new_die_added = True
             # elif slot_option.rect.collidepoint(event.pos):
@@ -101,8 +106,11 @@ while run:
     if dice_option.clicked:
         screen_blit_die(all_dice)
         screen.blit(roll_button.image, roll_button.rect)
-        screen.blit(add_dice_button.image, add_dice_button.rect)
-        screen.blit(display_dice_total, (0, 0))
+        if settings["testing"]:
+            screen.blit(test_tools_button.image, test_tools_button.rect)
+            if displaying_testing_menu:
+                screen.blit(add_dice_button.image, add_dice_button.rect)
+                screen.blit(display_dice_total, (0, 0))
     else:
         screen.blit(dice_option.image, dice_option.rect)
 
