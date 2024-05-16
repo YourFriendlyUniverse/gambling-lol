@@ -2,6 +2,7 @@ import pygame
 import random
 from menubutton import MenuButton
 from dice import Dice
+from submenu import SubMenu
 
 
 def screen_blit_die(die_list):
@@ -50,6 +51,7 @@ run = True
 clock = pygame.time.Clock()
 frame = 0
 new_die_added = False
+dice_points = 0
 
 # initializing menu buttons
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
@@ -58,6 +60,7 @@ if settings["testing"]:
     test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
     add_dice_button = MenuButton("AddDice", (screen_center[0], screen_center[1] + (screen_center[1] / 2) + 100))
     add_dice_button.scale_down(1.5)
+    testing_submenu = SubMenu("testing", settings["screen_size"])
 
 # dice game variables
 all_dice = []
@@ -83,14 +86,26 @@ while run:
                 dice_option.clicked = True
                 all_dice = [Dice(6, times_scaled)]    # starts game off with one D6
                 # initializes button to roll dice
+
             if roll_button.rect.collidepoint(event.pos) and dice_option.clicked:
                 for dice in all_dice:
                     dice.roll_dice()
                 dice_total = add_dice_total(all_dice)
                 display_dice_total = display_font.render(f"{dice_total}", True, (255, 255, 255))
+                # rolls the dice
             if add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked and displaying_testing_menu:
                 all_dice.append(Dice(6, times_scaled))
                 new_die_added = True
+                # adds dice within the testing menu
+                ### FIND WAY TO SCALE
+            if settings["testing"]:
+                if test_tools_button.rect.collidepoint(event.pos):
+                    # for i in range(len(testing_submenu.buttons)):
+                    #     print(testing_submenu.buttons[f"{i + 1}"])
+                    if not testing_submenu.is_open:
+                        testing_submenu.open()
+                    # else:
+                    #     testing_submenu.close()
             # elif slot_option.rect.collidepoint(event.pos):
             #     print("SLOTS")
 
@@ -108,11 +123,13 @@ while run:
         screen.blit(roll_button.image, roll_button.rect)
         if settings["testing"]:
             screen.blit(test_tools_button.image, test_tools_button.rect)
-            if displaying_testing_menu:
+            if testing_submenu.is_open:
                 screen.blit(add_dice_button.image, add_dice_button.rect)
                 screen.blit(display_dice_total, (0, 0))
+                screen.blit(testing_submenu.image, (0, 0))
     else:
         screen.blit(dice_option.image, dice_option.rect)
+
 
 
     pygame.display.update()
