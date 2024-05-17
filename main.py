@@ -65,7 +65,7 @@ if settings["testing"]:
 # dice game variables
 all_dice = []
 dice_total = 0
-display_dice_total = display_font.render(f"{dice_total}", True, (255, 255, 255))
+display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
 times_scaled = 0
 displaying_testing_menu = False
 
@@ -91,21 +91,21 @@ while run:
                 for dice in all_dice:
                     dice.roll_dice()
                 dice_total = add_dice_total(all_dice)
-                display_dice_total = display_font.render(f"{dice_total}", True, (255, 255, 255))
+                display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
                 # rolls the dice
-            if add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked and displaying_testing_menu:
-                all_dice.append(Dice(6, times_scaled))
-                new_die_added = True
+
                 # adds dice within the testing menu
                 ### FIND WAY TO SCALE
             if settings["testing"]:
                 if test_tools_button.rect.collidepoint(event.pos):
                     # for i in range(len(testing_submenu.buttons)):
                     #     print(testing_submenu.buttons[f"{i + 1}"])
-                    if not testing_submenu.is_open:
-                        testing_submenu.open()
-                    # else:
-                    #     testing_submenu.close()
+                    testing_submenu.open()
+                elif add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked and testing_submenu.is_open:
+                    for i in range(20):
+                        all_dice.append(Dice(6, times_scaled))
+                    new_die_added = True
+
             # elif slot_option.rect.collidepoint(event.pos):
             #     print("SLOTS")
 
@@ -122,11 +122,11 @@ while run:
         screen_blit_die(all_dice)
         screen.blit(roll_button.image, roll_button.rect)
         if settings["testing"]:
-            screen.blit(test_tools_button.image, test_tools_button.rect)
             if testing_submenu.is_open:
                 screen.blit(add_dice_button.image, add_dice_button.rect)
-                screen.blit(display_dice_total, (0, 0))
-                screen.blit(testing_submenu.image, (0, 0))
+                screen.blit(testing_submenu.image, testing_submenu.rect)
+            screen.blit(test_tools_button.image, test_tools_button.rect)
+            screen.blit(display_dice_total, (30, 30))
     else:
         screen.blit(dice_option.image, dice_option.rect)
 

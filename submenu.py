@@ -17,7 +17,9 @@ class SubMenu:
                 "1": "shop_l1"
             }
             # the buttons and their positions
-        self.image = pygame.Surface((250, screen_size[1]))
+        self.rect = pygame.Rect(0, 0, 250, screen_size[1])
+        self.image = pygame.Surface((500, screen_size[1]))
+        pygame.Surface.fill(self.image, (255, 255, 255))
 
 
     def open(self):

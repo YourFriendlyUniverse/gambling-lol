@@ -12,13 +12,13 @@ class Dice:
         self.side_up = random.randint(1, self.sides)
         self.face_up_symbol = self.faces[self.side_up - 1]  # gets the number that's face up
         self.image = pygame.image.load(f"{self.face_up_symbol}Dice.png")    # gets the image
-        self.image_size = self.image.get_size()
+        self.image_size = self.image.get_size()     # sets up image size for scaling later
         # scaling
         self.scale_factor = 2
         self.original_image = self.image    # sets the original image to be used for scaling
-        self.image_size = self.image_size * (2 ** times_scaled)
-        self.image = pygame.transform.scale(self.original_image, (self.image_size[0] / (self.scale_factor ** times_scaled), self.image_size[1] / (self.scale_factor ** times_scaled)))
-        self.original_image_size = self.image.get_size()  # sets the original image to be used for scaling
+        self.times_scaled = times_scaled
+        self.image = pygame.transform.scale(self.original_image, (self.image_size[0] / (self.scale_factor ** self.times_scaled), self.image_size[1] / (self.scale_factor ** self.times_scaled)))
+        self.image_size = self.image.get_size()     # updates image size
         # rectangles for display
         self.rect = pygame.Rect(100, 100, self.image_size[0], self.image_size[1])   # sets location of dice
         self.rect.center = (100, 100)   # sets center of dice
@@ -27,6 +27,7 @@ class Dice:
         self.side_up = random.randint(1, self.sides)
         self.face_up_symbol = self.faces[self.side_up - 1]
         self.image = pygame.image.load(f"{self.face_up_symbol}Dice.png")
+        self.image = pygame.transform.scale(self.image, (self.image_size[0] / 1 + (self.scale_factor * self.times_scaled), self.image_size[1] / 1 + (self.scale_factor * self.times_scaled)))
         # updates image and rolls dice
 
     def position_correct(self, previous_x, previous_y, start, limit):
