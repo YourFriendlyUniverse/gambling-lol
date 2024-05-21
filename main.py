@@ -36,6 +36,7 @@ settings = {
     "frames_per_second": 60,
     "font": "Comic Sans",
     "testing": True,
+    "max_die": 100
 }
 
 # initializing variables
@@ -45,6 +46,11 @@ title_screen = True
 size = settings["screen_size"]
 screen_center = (size[0] / 2, size[1] / 2)
 screen = pygame.display.set_mode(size)
+current_bet = 1
+money = 100
+display_money = display_font.render(f"${money}", True, (255, 255, 255))
+display_current_bet = display_font.render(f"Current Bet: ${current_bet}", True, (255, 255, 255))
+
 
 # loop variables needed for it to run
 run = True
@@ -56,11 +62,14 @@ dice_points = 0
 # initializing menu buttons
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
 roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
+shop_button = MenuButton("Shop", (100, size[1] - 250))
 if settings["testing"]:
-    test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
-    add_dice_button = MenuButton("AddDice", (screen_center[0], screen_center[1] + (screen_center[1] / 2) + 100))
-    add_dice_button.scale_down(1.5)
     testing_submenu = SubMenu("testing", settings["screen_size"])
+    test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
+    add_dice_button = MenuButton("AddDice", testing_submenu.slot_1)
+    add_dice_button.scale_down(2)
+
+
 
 # dice game variables
 all_dice = []
@@ -90,8 +99,12 @@ while run:
             if roll_button.rect.collidepoint(event.pos) and dice_option.clicked:
                 for dice in all_dice:
                     dice.roll_dice()
+                    if dice.face_up_symbol == 6:
+                        money += current_bet * 2
+                        display_money = display_font.render(f"${money}", True, (255, 255, 255))
                 dice_total = add_dice_total(all_dice)
                 display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
+
                 # rolls the dice
 
                 # adds dice within the testing menu
@@ -102,9 +115,9 @@ while run:
                     #     print(testing_submenu.buttons[f"{i + 1}"])
                     testing_submenu.open()
                 elif add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked and testing_submenu.is_open:
-                    for i in range(20):
+                    if len(all_dice) < settings["max_die"]:     # caps die that can be in game
                         all_dice.append(Dice(6, times_scaled))
-                    new_die_added = True
+                        new_die_added = True
 
             # elif slot_option.rect.collidepoint(event.pos):
             #     print("SLOTS")
@@ -121,12 +134,16 @@ while run:
     if dice_option.clicked:
         screen_blit_die(all_dice)
         screen.blit(roll_button.image, roll_button.rect)
+        screen.blit(shop_button.image, shop_button.rect)
+
         if settings["testing"]:
             if testing_submenu.is_open:
-                screen.blit(add_dice_button.image, add_dice_button.rect)
                 screen.blit(testing_submenu.image, testing_submenu.rect)
+                screen.blit(add_dice_button.image, add_dice_button.rect)
             screen.blit(test_tools_button.image, test_tools_button.rect)
             screen.blit(display_dice_total, (30, 30))
+        screen.blit(display_current_bet, (screen_center[0], 0))
+        screen.blit(display_money, (screen_center[0], 20))
     else:
         screen.blit(dice_option.image, dice_option.rect)
 

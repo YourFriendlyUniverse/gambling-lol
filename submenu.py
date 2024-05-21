@@ -5,17 +5,15 @@ class SubMenu:
     def __init__(self, name, screen_size):
         self.is_open = False
         if name == "testing":
+            self.slot_1 = (100, 100)
             self.spacing = (125, 75)    # how far the centers of the buttons should be spaced x and y
-            self.buttons = {
-                "1": "AddDice",
-                "2": "AddCurrency",
-            }
-            # the buttons and their positions
+
         elif name == "shop":
+            self.slot_1 = (100, 100)
             self.spacing = (100, 100)   # how far the centers of the buttons should be spaced x and y
-            self.buttons = {
-                "1": "shop_l1"
-            }
+            # can buy stuff like multipliers/jackpot size increase etc
+            # also stuff with dice total
+
             # the buttons and their positions
         self.rect = pygame.Rect(0, 0, 250, screen_size[1])
         self.image = pygame.Surface((500, screen_size[1]))
