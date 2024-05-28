@@ -21,7 +21,7 @@ class Dice:
         self.image_size = self.image.get_size()     # updates image size
         # rectangles for display
         self.rect = pygame.Rect(100, 100, self.image_size[0], self.image_size[1])   # sets location of dice
-        self.rect.center = (800, 500)   # sets center of dice
+        self.rect.center = (100, 100)   # sets center of dice
 
     def roll_dice(self):
         self.side_up = random.randint(1, self.sides)

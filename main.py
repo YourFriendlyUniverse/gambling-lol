@@ -63,6 +63,8 @@ dice_points = 0
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
 roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
 shop_button = MenuButton("Shop", (100, size[1] - 250))
+change_bet_button = MenuButton("ChangeBet", (size[0] - 200, size[1] - 100))
+change_bet_submenu = SubMenu("change_bet", settings["screen_size"])
 if settings["testing"]:
     testing_submenu = SubMenu("testing", settings["screen_size"])
     test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
@@ -82,20 +84,29 @@ while run:
     # --- Main event loop
     clock.tick(settings["frames_per_second"])  # sets fps
 
+    # quitting game
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
             run = False
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                print("space")
-
+        # rolling dice using space
+        if event.type == pygame.TEXTINPUT:
+            if event.text == " " and dice_option.clicked:  # checks if space is held down
+                for dice in all_dice:
+                    dice.roll_dice()
+                    if dice.face_up_symbol == 6:
+                        money += current_bet * 2
+                        display_money = display_font.render(f"${money}", True, (255, 255, 255))
+                dice_total = add_dice_total(all_dice)
+                display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
+        # checks for mouse button clicked
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # initializing dice game
             if dice_option.rect.collidepoint(event.pos) and not dice_option.clicked:    # checks for a click on the dice gamemode option
                 dice_option.clicked = True
                 all_dice = [Dice(6, times_scaled)]    # starts game off with one D6
                 # initializes button to roll dice
-
+            # rolls dice
             if roll_button.rect.collidepoint(event.pos) and dice_option.clicked:
                 for dice in all_dice:
                     dice.roll_dice()
@@ -105,15 +116,19 @@ while run:
                 dice_total = add_dice_total(all_dice)
                 display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
 
-                # rolls the dice
+            if event.type == pygame.KEYDOWN:
+                # Check for backspace
+                if event.key == pygame.K_BACKSPACE:
+                    user_text = user_text[:-1]  # removes last character
+                else:
+                    user_text += event.unicode
+            # testing settings
+            if settings["testing"]:
+                # opens/closes testing submenu when button is clicked
+                if test_tools_button.rect.collidepoint(event.pos):
+                    testing_submenu.open()
 
                 # adds dice within the testing menu
-                ### FIND WAY TO SCALE
-            if settings["testing"]:
-                if test_tools_button.rect.collidepoint(event.pos):
-                    # for i in range(len(testing_submenu.buttons)):
-                    #     print(testing_submenu.buttons[f"{i + 1}"])
-                    testing_submenu.open()
                 elif add_dice_button.rect.collidepoint(event.pos) and dice_option.clicked and testing_submenu.is_open:
                     if len(all_dice) < settings["max_die"]:     # caps die that can be in game
                         all_dice.append(Dice(6, times_scaled))
@@ -122,20 +137,25 @@ while run:
             # elif slot_option.rect.collidepoint(event.pos):
             #     print("SLOTS")
 
+    # corrects die positions and scales die
     if new_die_added:
         if die_position_correct(all_dice, size) == "rerun":
             die_position_correct(all_dice, size)
             times_scaled += 1
             # preforms a rerun of correcting the positions of the die as they have then been scaled down
         new_die_added = False
+
     # do not blit above #
     screen.fill((0, 0, 0))
     # screen.blit(bg, (bg_x, 0))
+    # shows on screen the dice game buttons when the dice option is clicked
     if dice_option.clicked:
         screen_blit_die(all_dice)
         screen.blit(roll_button.image, roll_button.rect)
         screen.blit(shop_button.image, shop_button.rect)
-
+        screen.blit(change_bet_button.image, change_bet_button.rect)
+        screen.blit(change_bet_submenu.image, change_bet_submenu.rect)
+        # testing stuff
         if settings["testing"]:
             if testing_submenu.is_open:
                 screen.blit(testing_submenu.image, testing_submenu.rect)
@@ -144,6 +164,7 @@ while run:
             screen.blit(display_dice_total, (30, 30))
         screen.blit(display_current_bet, (screen_center[0], 0))
         screen.blit(display_money, (screen_center[0], 20))
+    # shows the menu screen
     else:
         screen.blit(dice_option.image, dice_option.rect)
 
