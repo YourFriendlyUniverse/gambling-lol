@@ -24,3 +24,9 @@ class MenuButton:
         self.image_size = self.image.get_size()
         self.rect = self.image.get_rect()
         self.rect.center = self.center  # keeps the center of the button the same
+
+    def click(self):
+        if self.clicked:
+            self.clicked = False
+        else:
+            self.clicked = True

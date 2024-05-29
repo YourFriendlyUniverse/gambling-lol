@@ -5,6 +5,7 @@ from dice import Dice
 from submenu import SubMenu
 
 
+# displays all the dice on the screen
 def screen_blit_die(die_list):
     for dice in die_list:
         screen.blit(dice.image, dice.rect)
@@ -27,6 +28,15 @@ def add_dice_total(die_list):
     return total
 
 
+# checks if the inputted text is a number or not
+def is_number(text):
+    if text == "1" or "2" or "3" or "0":
+        return True
+    return False
+##############################################################################################
+# FIX THIS
+
+
 pygame.init()
 pygame.font.init()
 
@@ -47,6 +57,7 @@ size = settings["screen_size"]
 screen_center = (size[0] / 2, size[1] / 2)
 screen = pygame.display.set_mode(size)
 current_bet = 1
+change_bet = ""
 money = 100
 display_money = display_font.render(f"${money}", True, (255, 255, 255))
 display_current_bet = display_font.render(f"Current Bet: ${current_bet}", True, (255, 255, 255))
@@ -63,8 +74,11 @@ dice_points = 0
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
 roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
 shop_button = MenuButton("Shop", (100, size[1] - 250))
+# change bet buttons
 change_bet_button = MenuButton("ChangeBet", (size[0] - 200, size[1] - 100))
 change_bet_submenu = SubMenu("change_bet", settings["screen_size"])
+change_bet_back = MenuButton("ChangeBetBack", (screen_center[0] - 60, screen_center[1] + 50))
+change_bet_confirm = MenuButton("ChangeBetConfirm", (screen_center[0] + 60, screen_center[1] + 50))
 if settings["testing"]:
     testing_submenu = SubMenu("testing", settings["screen_size"])
     test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
@@ -89,8 +103,23 @@ while run:
         if event.type == pygame.QUIT:  # If user clicked close
             run = False
 
+        if change_bet_button.clicked:
+            if event.type == pygame.TEXTINPUT:
+                # checks if the text input is a number
+                # BROKEN
+                if is_number(event.text):
+                    print(event.text)
+                    change_bet += event.text
+                    print(change_bet)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:        # checks for esc key
+                    change_bet_button.click()   # closes menu
+                if event.key == pygame.K_BACKSPACE:     # checks for backspace
+                    change_bet = change_bet[:-1]  # removes last character
+
+
         # rolling dice using space
-        if event.type == pygame.TEXTINPUT:
+        elif event.type == pygame.TEXTINPUT:
             if event.text == " " and dice_option.clicked:  # checks if space is held down
                 for dice in all_dice:
                     dice.roll_dice()
@@ -99,29 +128,37 @@ while run:
                         display_money = display_font.render(f"${money}", True, (255, 255, 255))
                 dice_total = add_dice_total(all_dice)
                 display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
+
         # checks for mouse button clicked
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # initializing dice game
-            if dice_option.rect.collidepoint(event.pos) and not dice_option.clicked:    # checks for a click on the dice gamemode option
-                dice_option.clicked = True
-                all_dice = [Dice(6, times_scaled)]    # starts game off with one D6
-                # initializes button to roll dice
-            # rolls dice
-            if roll_button.rect.collidepoint(event.pos) and dice_option.clicked:
-                for dice in all_dice:
-                    dice.roll_dice()
-                    if dice.face_up_symbol == 6:
-                        money += current_bet * 2
-                        display_money = display_font.render(f"${money}", True, (255, 255, 255))
-                dice_total = add_dice_total(all_dice)
-                display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
+            if dice_option.clicked:
+                # rolls dice
+                if roll_button.rect.collidepoint(event.pos):
+                    for dice in all_dice:
+                        dice.roll_dice()
+                        if dice.face_up_symbol == 6:
+                            money += current_bet * 2
+                            display_money = display_font.render(f"${money}", True, (255, 255, 255))
+                    dice_total = add_dice_total(all_dice)
+                    display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
 
-            if event.type == pygame.KEYDOWN:
-                # Check for backspace
-                if event.key == pygame.K_BACKSPACE:
-                    user_text = user_text[:-1]  # removes last character
-                else:
-                    user_text += event.unicode
+                if change_bet_button.rect.collidepoint(event.pos):
+                    change_bet_button.click()
+                    change_bet = ""
+
+                if change_bet_button.clicked:   # if the change bet submenu is open
+                    if change_bet_confirm.rect.collidepoint(event.pos):
+                        print("confirm")
+                    elif change_bet_back.rect.collidepoint(event.pos):
+                        print("back")
+                        change_bet_button.click()
+
+            # initializing dice game
+            elif dice_option.rect.collidepoint(event.pos):  # checks for a click on the dice gamemode option
+                dice_option.clicked = True
+                all_dice = [Dice(6, times_scaled)]  # starts game off with one D6
+                # initializes button to roll dice
+
             # testing settings
             if settings["testing"]:
                 # opens/closes testing submenu when button is clicked
@@ -154,7 +191,11 @@ while run:
         screen.blit(roll_button.image, roll_button.rect)
         screen.blit(shop_button.image, shop_button.rect)
         screen.blit(change_bet_button.image, change_bet_button.rect)
-        screen.blit(change_bet_submenu.image, change_bet_submenu.rect)
+        if change_bet_button.clicked:
+            screen.blit(change_bet_submenu.image, change_bet_submenu.rect)
+            screen.blit(change_bet_back.image, change_bet_back.rect)
+            screen.blit(change_bet_confirm.image, change_bet_confirm.rect)
+            # change bet submenu to input text
         # testing stuff
         if settings["testing"]:
             if testing_submenu.is_open:
