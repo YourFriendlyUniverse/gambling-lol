@@ -65,12 +65,18 @@ dice_points = 0
 # initializing menu buttons
 dice_option = MenuButton("Dice", (screen_center[0], screen_center[1] - 100))
 roll_button = MenuButton("Roll", (screen_center[0], screen_center[1] + (screen_center[1] / 2)))
-shop_button = MenuButton("Shop", (100, size[1] - 250))
+
 # change bet buttons
 change_bet_button = MenuButton("ChangeBet", (size[0] - 200, size[1] - 100))
 change_bet_submenu = SubMenu("change_bet", settings["screen_size"])
 change_bet_back = MenuButton("ChangeBetBack", (screen_center[0] - 60, screen_center[1] + 50))
 change_bet_confirm = MenuButton("ChangeBetConfirm", (screen_center[0] + 60, screen_center[1] + 50))
+
+# shop buttons + submenu
+shop_button = MenuButton("Shop", (100, size[1] - 250))
+shop_submenu = SubMenu("shop", settings["screen_size"])
+shop_close_button = MenuButton("Close", shop_submenu.slot_close)
+
 if settings["testing"]:
     testing_submenu = SubMenu("testing", settings["screen_size"])
     test_tools_button = MenuButton("TestTools", (100, size[1] - 100))
@@ -126,6 +132,13 @@ while run:
                     change_bet_submenu.open()
                     # closes the menu without updating the bet
 
+        elif shop_submenu.is_open:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if shop_close_button.rect.collidepoint(event.pos):
+                    shop_submenu.open()
+                    # closes shop
+                # elif shop_buy():
+                    # purchasing stuff here
 
         # rolling dice using space
         elif event.type == pygame.TEXTINPUT:
@@ -151,11 +164,15 @@ while run:
                     dice_total = add_dice_total(all_dice)
                     display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
 
+                elif shop_button.rect.collidepoint(event.pos) and not shop_submenu.is_open:
+                    shop_submenu.open()
+
                 # opens and closes the change_bet submenu
-                if change_bet_button.rect.collidepoint(event.pos):
+                elif change_bet_button.rect.collidepoint(event.pos):
                     change_bet_submenu.open()
                     change_bet = ""
                     display_change_bet = display_font.render(f"{change_bet}", True, (0, 0, 0))
+
 
             # initializing dice game
             elif dice_option.rect.collidepoint(event.pos):  # checks for a click on the dice gamemode option
@@ -201,6 +218,9 @@ while run:
             screen.blit(change_bet_confirm.image, change_bet_confirm.rect)
             screen.blit(display_change_bet, change_bet_submenu.rect)
             # change bet submenu to input text
+        elif shop_submenu.is_open:
+            screen.blit(shop_submenu.image, shop_submenu.rect)
+            screen.blit(shop_close_button.image, shop_close_button.rect)
         # testing stuff
         if settings["testing"]:
             if testing_submenu.is_open:

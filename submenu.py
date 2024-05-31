@@ -16,6 +16,7 @@ class SubMenu:
             self.spacing = (100, 100)   # how far the centers of the buttons should be spaced x and y
             # can buy stuff like multipliers/jackpot size increase etc
             # also stuff with dice total
+            self.slot_close = (400, 50)
             self.rect = pygame.Rect(0, 0, 250, screen_size[1])
             self.image = pygame.Surface((500, screen_size[1]))
             pygame.Surface.fill(self.image, (255, 255, 255))
