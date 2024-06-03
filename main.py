@@ -3,6 +3,7 @@ import random
 from menubutton import MenuButton
 from dice import Dice
 from submenu import SubMenu
+from shopitem import ShopItem
 
 
 # displays all the dice on the screen
@@ -28,6 +29,41 @@ def add_dice_total(die_list):
     return total
 
 
+def get_shop_item_multipliers():
+    shop_item_multiplier = {}
+    shop_item_names = open("shopitemnames", "r")
+    for line in shop_item_names:
+        line = line[:-1]    # removes the "\n"
+        is_value = False
+        item_name = ""
+        multiplier_value = ""
+        for character in line:
+            if character != ":" and not is_value:
+                item_name += character
+            elif is_value:
+                multiplier_value += character
+            else:
+                is_value = True
+        shop_item_multiplier.update({f"{item_name}": multiplier_value})
+    return shop_item_multiplier
+
+
+def get_shop_items():
+    shop_item_names = open("shopitemnames", "r")
+    for line in shop_item_names:
+        line = line[:-1]  # removes the "\n"
+        is_value = False
+        item_name = ""
+        item_name_list = []
+        for character in line:
+            if character != ":" and not is_value:
+                item_name += character
+            else:
+                is_value = True
+        # FIX THIS
+        item_name_list.append(item_name)
+    return item_name_list
+
 pygame.init()
 pygame.font.init()
 
@@ -36,9 +72,10 @@ settings = {
     "screen_size": (1600, 1000),
     "frames_per_second": 60,
     "font": "Comic Sans",
-    "testing": True,
+    "testing": False,
     "max_die": 100
 }
+
 
 # initializing variables
 display_font = pygame.font.SysFont(settings["font"], 20)
@@ -53,6 +90,10 @@ money = 100
 display_money = display_font.render(f"${money}", True, (255, 255, 255))
 display_current_bet = display_font.render(f"Current Bet: ${current_bet}", True, (255, 255, 255))
 display_change_bet = display_font.render(f"{change_bet}", True, (0, 0, 0))
+shop_bought = []
+shop_item_multipliers = get_shop_item_multipliers()
+shop_items = get_shop_items()
+print(shop_items)
 
 
 # loop variables needed for it to run
@@ -227,9 +268,10 @@ while run:
                 screen.blit(testing_submenu.image, testing_submenu.rect)
                 screen.blit(add_dice_button.image, add_dice_button.rect)
             screen.blit(test_tools_button.image, test_tools_button.rect)
-            screen.blit(display_dice_total, (30, 30))
+
         screen.blit(display_current_bet, (screen_center[0], 0))
         screen.blit(display_money, (screen_center[0], 20))
+        screen.blit(display_dice_total, (30, 30))
     # shows the menu screen
     else:
         screen.blit(dice_option.image, dice_option.rect)
