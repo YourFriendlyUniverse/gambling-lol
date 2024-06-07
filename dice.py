@@ -11,7 +11,7 @@ class Dice:
         self.sides = sides
         self.side_up = random.randint(1, self.sides)
         self.face_up_symbol = self.faces[self.side_up - 1]  # gets the number that's face up
-        self.image = pygame.image.load(f"{self.face_up_symbol}Dice.png")    # gets the image
+        self.image = pygame.image.load(f"DieFaces/{self.face_up_symbol}Dice.png")    # gets the image
         self.image_size = self.image.get_size()     # sets up image size for scaling later
         # scaling
         self.scale_factor = 2
@@ -26,7 +26,7 @@ class Dice:
     def roll_dice(self):
         self.side_up = random.randint(1, self.sides)
         self.face_up_symbol = self.faces[self.side_up - 1]
-        self.image = pygame.image.load(f"{self.face_up_symbol}Dice.png")
+        self.image = pygame.image.load(f"DieFaces/{self.face_up_symbol}Dice.png")
         self.image = pygame.transform.scale(self.image, (self.image_size[0] / 1 + (self.scale_factor * self.times_scaled), self.image_size[1] / 1 + (self.scale_factor * self.times_scaled)))
         # updates image and rolls dice
 

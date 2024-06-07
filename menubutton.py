@@ -7,7 +7,7 @@ class MenuButton:
         self.x = pos[0]
         self.y = pos[1]
         self.clicked = False
-        self.original_image = pygame.image.load(f"{self.name}MenuButton.png")
+        self.original_image = pygame.image.load(f"MenuButtons/{self.name}MenuButton.png")
         self.image = self.original_image
         self.original_image_size = self.original_image.get_size()
         self.image_size = self.original_image_size
