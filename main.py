@@ -50,11 +50,11 @@ def get_shop_item_multipliers():
 
 def get_shop_items():
     shop_item_names = open("shopitemnames", "r")
+    item_name_list = []
     for line in shop_item_names:
         line = line[:-1]  # removes the "\n"
         is_value = False
         item_name = ""
-        item_name_list = []
         for character in line:
             if character != ":" and not is_value:
                 item_name += character
@@ -63,6 +63,26 @@ def get_shop_items():
         # FIX THIS
         item_name_list.append(item_name)
     return item_name_list
+
+
+def screen_blit_shop_items(items):
+    for item in items:
+        screen.blit(item.image, item.rect)
+
+
+def pick_random_shop_item(items):
+    return ShopItem(items[random.randint(0, len(items) - 1)])
+
+
+def realign_shop(current_items, shop_submenu):
+    x = 100
+    y = 100
+    for item in current_items:
+        item.rect.center = (x, y)
+        x += shop_submenu.spacing[0]
+        if x >= shop_submenu.slot_close[0]:
+            y += shop_submenu.spacing[0]
+            x = 100
 
 pygame.init()
 pygame.font.init()
@@ -90,10 +110,7 @@ money = 100
 display_money = display_font.render(f"${money}", True, (255, 255, 255))
 display_current_bet = display_font.render(f"Current Bet: ${current_bet}", True, (255, 255, 255))
 display_change_bet = display_font.render(f"{change_bet}", True, (0, 0, 0))
-shop_bought = []
-shop_item_multipliers = get_shop_item_multipliers()
-shop_items = get_shop_items()
-print(shop_items)
+
 
 
 # loop variables needed for it to run
@@ -117,6 +134,13 @@ change_bet_confirm = MenuButton("ChangeBetConfirm", (screen_center[0] + 60, scre
 shop_button = MenuButton("Shop", (100, size[1] - 250))
 shop_submenu = SubMenu("shop", settings["screen_size"])
 shop_close_button = MenuButton("Close", shop_submenu.slot_close)
+shop_bought = []
+shop_item_multipliers = get_shop_item_multipliers()
+shop_items = get_shop_items()
+current_shop_items = []
+for i in range(15):
+    current_shop_items.append(pick_random_shop_item(shop_items))
+realign_shop(current_shop_items, shop_submenu)
 
 if settings["testing"]:
     testing_submenu = SubMenu("testing", settings["screen_size"])
@@ -262,6 +286,7 @@ while run:
         elif shop_submenu.is_open:
             screen.blit(shop_submenu.image, shop_submenu.rect)
             screen.blit(shop_close_button.image, shop_close_button.rect)
+            screen_blit_shop_items(current_shop_items)
         # testing stuff
         if settings["testing"]:
             if testing_submenu.is_open:
