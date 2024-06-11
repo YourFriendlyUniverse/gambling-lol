@@ -70,8 +70,10 @@ def screen_blit_shop_items(items):
         screen.blit(item.image, item.rect)
 
 
-def pick_random_shop_item(items):
-    return ShopItem(items[random.randint(0, len(items) - 1)])
+def pick_random_shop_item(items, item_multiplier):
+    shop_item_index = random.randint(0, len(items) - 1)
+    item_name = items[shop_item_index]
+    return ShopItem(item_name, item_multiplier[item_name])
 
 
 def realign_shop(current_items, shop_submenu):
@@ -83,6 +85,13 @@ def realign_shop(current_items, shop_submenu):
         if x >= shop_submenu.slot_close[0]:
             y += shop_submenu.spacing[0]
             x = 100
+
+
+def adjust_prices(current_items, scaler):
+    for item in current_items:
+        item.set_price(scaler)
+    return current_items
+
 
 pygame.init()
 pygame.font.init()
@@ -130,7 +139,7 @@ change_bet_submenu = SubMenu("change_bet", settings["screen_size"])
 change_bet_back = MenuButton("ChangeBetBack", (screen_center[0] - 60, screen_center[1] + 50))
 change_bet_confirm = MenuButton("ChangeBetConfirm", (screen_center[0] + 60, screen_center[1] + 50))
 
-# shop buttons + submenu
+# shop buttons + submenu + variables
 shop_button = MenuButton("Shop", (100, size[1] - 250))
 shop_submenu = SubMenu("shop", settings["screen_size"])
 shop_close_button = MenuButton("Close", shop_submenu.slot_close)
@@ -138,9 +147,14 @@ shop_bought = []
 shop_item_multipliers = get_shop_item_multipliers()
 shop_items = get_shop_items()
 current_shop_items = []
+price_scaler = 1
 for i in range(15):
-    current_shop_items.append(pick_random_shop_item(shop_items))
+    current_shop_items.append(pick_random_shop_item(shop_items, shop_item_multipliers))
 realign_shop(current_shop_items, shop_submenu)
+current_shop_items = adjust_prices(current_shop_items, price_scaler)
+display_shop_prices = []
+for item in current_shop_items:
+    display_shop_prices.append(display_font.render(f"${item.price}", True, (255, 255, 255)))
 
 if settings["testing"]:
     testing_submenu = SubMenu("testing", settings["screen_size"])
@@ -148,14 +162,23 @@ if settings["testing"]:
     add_dice_button = MenuButton("AddDice", testing_submenu.slot_1)
     add_dice_button.scale_down(2)
 
-
-
 # dice game variables
 all_dice = []
 dice_total = 0
 display_dice_total = display_font.render(f"{dice_total}", True, (100, 100, 100))
 times_scaled = 0
 displaying_testing_menu = False
+
+# variables that the shop items will adjust
+jackpot_multiplier = 1
+odd_multiplier = 1
+even_multiplier = 1
+money_taken_multiplier = 1
+
+# jackpot * jackpot_multiplier
+# if even: even multipler
+# if odd: odd multilpier
+# money - (current_bet * money_taken_multiplier)
 
 while run:
     # --- Main event loop
@@ -201,6 +224,24 @@ while run:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if shop_close_button.rect.collidepoint(event.pos):
                     shop_submenu.open()
+                # buying items
+                for i in range(len(current_shop_items)):
+                    if current_shop_items[i].rect.collidepoint(event.pos):
+                        if current_shop_items[i].price < money:
+                            # updates money
+                            money -= current_shop_items[i].price
+                            display_money = display_font.render(f"${money}", True, (255, 255, 255))
+                            # appends the item to the bought items
+                            shop_bought.append(current_shop_items[i])
+                            # removes it from the shop
+                            current_shop_items.pop(i)
+                            # adds new item
+                            current_shop_items.append(pick_random_shop_item(shop_items, shop_item_multipliers))
+                            realign_shop(current_shop_items, shop_submenu)
+                            # readjusts prices
+                            price_scaler += random.randint(0, 2)
+                            current_shop_items = adjust_prices(current_shop_items, price_scaler)
+
                     # closes shop
                 # elif shop_buy():
                     # purchasing stuff here
@@ -237,7 +278,6 @@ while run:
                     change_bet_submenu.open()
                     change_bet = ""
                     display_change_bet = display_font.render(f"{change_bet}", True, (0, 0, 0))
-
 
             # initializing dice game
             elif dice_option.rect.collidepoint(event.pos):  # checks for a click on the dice gamemode option
